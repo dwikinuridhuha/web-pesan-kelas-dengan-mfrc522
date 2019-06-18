@@ -7,37 +7,52 @@ if(!isset($_SESSION['nim'])) {
     echo '<script>window.location.href = "http://localhost/webMCU";</script>';
 }
 
-
 $sql = "select * from sensor where status='terPesan' AND nim='".$_SESSION['nim']."'";
-$sqlRuangan = "select nama from ruangan where statusRuangan='kosong' order by ruangan.nama ASC";
-
 $result = $conn->query($sql);
-$resultRuangan = $conn->query($sqlRuangan);
+$arrResult = Array();
 
-if($result->num_rows > 0) {
-    echo "<script>alert(\"Mohon maaf anda sudah memesan kelas\")</script>";
-    echo '<script>window.location.href = "http://localhost/webMCU/history.php";</script>';
+while($row = $result->fetch_assoc()) {
+    $arrResult[0] = $row['ID'];
+    $arrResult[1] = $row['nim'];
+    $arrResult[2] = $row['kelas'];
+    $arrResult[3] = $row['keterangan'];
+    $arrResult[4] = $row['jamMulai'];
+    $arrResult[5] = $row['jamSelesai'];
+    $arrResult[6] = $row['tanggal'];
+    $arrResult[7] = $row['status'];
 }
 
-if(isset($_POST['kirim'])) {
-    $nim=$_SESSION['nim'];
+$sqlRuangan = "select nama from ruangan where statusRuangan='kosong' order by nama ASC";
+$resultRuangan = $conn->query($sqlRuangan);
+
+if(isset($_POST['update'])) {
     $kelas=$_POST['kelas'];
     $keterangan=$_POST['keterangan'];
     $jamMulai=$_POST['jamMulai'];
     $jamSelesai=$_POST['jamSelesai'];
     $tanggal=$_POST['tanggal'];
 
-    $sql = "INSERT INTO sensor
-            (nim, kelas, keterangan,tanggal, jamMulai, jamSelesai, status)
-            VALUES ('".$nim."','".$kelas."','".$keterangan."','".$tanggal."', '".$jamMulai."', '".$jamSelesai."', 'terPesan')";
+    $sql = "update sensor set kelas='".$kelas."', keterangan='".$keterangan."', jamMulai='".$jamMulai."', jamSelesai='".$jamSelesai."', tanggal='".$tanggal."' where status='terPesan' AND nim='".$_SESSION['nim']."'";
 
-    $sqlRuangan ="update ruangan set statusRuangan='terPesan' where nama='".$kelas."'";
+    if($conn->query($sql) === TRUE) {
+        $sqlRuangan1 ="update ruangan set statusRuangan='kosong' where nama='".$arrResult[2]."'";
 
-    if ($conn->query($sql) === TRUE && $conn->query($sqlRuangan) === TRUE) {
-        echo "<script>alert(\"berhasil\")</script>";
-        echo '<script>window.location.href = "http://localhost/webMCU/history.php";</script>';
+        if($conn->query($sqlRuangan1) === TRUE) {
+            $sqlRuangan2 = "update ruangan set statusRuangan='terPesan' where nama='".$kelas."'";
+
+            if($conn->query($sqlRuangan2) === TRUE) {
+                echo "<script>alert(\"berhasil terUpdate\")</script>";
+                echo '<script>window.location.href = "http://localhost/webMCU/history.php";</script>';
+
+            } else {
+                echo "<script>alert(echo \"dari ruangan2 \".$conn->error)</script>";
+            }
+        } else {
+            echo "<script>alert(echo \"dari ruangan1 \".$conn->error)</script>";
+        }
+
     } else {
-        echo "<script>alert($conn->error)</script>";
+        echo "<script>alert(echo \"dari sensor \".$conn->error)</script>";
     }
 }
 ?>
@@ -89,53 +104,55 @@ if(isset($_POST['kirim'])) {
 					Say Hello!
 				</span>
 
-            <div class="wrap-input100 validate-input" data-validate="kelas is required">
+            <div class="wrap-input100 validate-input" data-validate="Kelas is required">
                 <span class="label-input100">Kelas</span><br>
                 <select class="selectpicker" data-live-search="true" name="kelas">
-                    <?php
-                        if($resultRuangan->num_rows > 0) {
-                            while($rowRuangan = $resultRuangan->fetch_assoc()) {
-                    ?>
 
-                    <option data-tokens="<?php echo $rowRuangan['nama'] ?>"><?php echo $rowRuangan['nama'] ?></option>
-
+                    <option data-tokens="<?php echo $arrResult[2] ?>"><?php echo $arrResult[2] ?></option>
                     <?php
-                            }
+                    if($resultRuangan->num_rows > 0) {
+                        while($rowRuangan = $resultRuangan->fetch_assoc()) {
+                            ?>
+
+                            <option data-tokens="<?php echo $rowRuangan['nama'] ?>"><?php echo $rowRuangan['nama'] ?></option>
+
+                            <?php
                         }
+                    }
                     ?>
                 </select>
             </div>
 
-            <div class="wrap-input100 validate-input" data-validate="JamMulai is required">
+            <div class="wrap-input100 validate-input" data-validate="Jam mulai is required">
                 <span class="label-input100">Jam Mulai</span>
-                <input class="input100" type="time" name="jamMulai">
+                <input class="input100" type="time" name="jamMulai" value="<?php echo $arrResult[4] ?>">
                 <span class="focus-input100"></span>
             </div>
 
             <div class="wrap-input100 validate-input" data-validate="jamSelesai is required">
-                <span class="label-input100">Jam Selesai</span>
-                <input class="input100" type="time" name="jamSelesai">
+                <span class="label-input100">Jam Berakhir</span>
+                <input class="input100" type="time" name="jamSelesai" value="<?php echo $arrResult[5] ?>">
                 <span class="focus-input100"></span>
             </div>
 
             <div class="wrap-input100 validate-input" data-validate="tanggal is required">
                 <span class="label-input100">Tanggal</span>
-                <input class="input100" type="date" name="tanggal">
+                <input class="input100" type="date" name="tanggal" value="<?php echo $arrResult[6] ?>">
                 <span class="focus-input100"></span>
             </div>
 
             <div class="wrap-input100 validate-input" data-validate="keterangan is required">
                 <span class="label-input100">Keterangan</span>
-                <input class="input100" type="text" name="keterangan" placeholder="contoh: kelas penganti">
+                <input class="input100" type="text" name="keterangan" placeholder="contoh: kelas penganti" value="<?php echo $arrResult[3] ?>">
                 <span class="focus-input100"></span>
             </div>
 
             <div class="container-contact100-form-btn">
                 <div class="wrap-contact100-form-btn">
                     <div class="contact100-form-bgbtn"></div>
-                    <button class="contact100-form-btn" type="submit" name="kirim">
+                    <button class="contact100-form-btn" type="submit" name="update">
 							<span>
-								Submit
+								Update
 								<i class="fa fa-long-arrow-right m-l-7" aria-hidden="true"></i>
 							</span>
                     </button>

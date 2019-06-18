@@ -1,22 +1,61 @@
 <?php
 require ('dbConn.php');
 
-$konfirmasi = "batal";
+session_start();
 
-if($konfirmasi == "batal") {
-    $sql = "delete from sensor where nim='update'";
-} else {
-    $sql = "update sensor set nim='Update' where nim='ngawur'";
+if(!isset($_SESSION['nim'])) {
+    echo '<script>window.location.href = "http://localhost/webMCU";</script>';
 }
 
-if($conn->query($sql) === TRUE) {
-    if($konfirmasi == "batal") {
-        echo "sukses dibatalkan";
+$sql = "select * from sensor where status='terPesan' AND nim='".$_SESSION['nim']."'";
+$result = $conn->query($sql);
+
+$arrResult = Array();
+
+while($row = $result->fetch_assoc()) {
+    $arrResult[0] = $row['ID'];
+    $arrResult[1] = $row['nim'];
+    $arrResult[2] = $row['kelas'];
+    $arrResult[3] = $row['keterangan'];
+    $arrResult[4] = $row['jamMulai'];
+    $arrResult[5] = $row['jamSelesai'];
+    $arrResult[6] = $row['tanggal'];
+    $arrResult[7] = $row['status'];
+}
+
+if($result->num_rows <= 0) {
+    echo "<script>alert(\"tidak ada data\")</script>";
+    echo '<script>window.location.href = "http://localhost/webMCU/history.php";</script>';
+}
+
+if(isset($_POST['selesai'])) {
+    $sql = "update sensor set status='selesai' where status='terPesan' AND nim='".$_SESSION['nim']."'";
+    $sqlRuangan ="update ruangan set statusRuangan='kosong' where nama='".$arrResult[2]."'";
+
+    if ($conn->query($sql) === TRUE && $conn->query($sqlRuangan) === TRUE) {
+        echo "<script>alert(\"berhasil terUpdate\")</script>";
+        echo '<script>window.location.href = "http://localhost/webMCU/history.php";</script>';
     } else {
-        echo "sukses terUpdate";
+        echo "<script>alert($conn->error)</script>";
     }
-} else {
-    echo "gagal update: ". $conn->error;
+}
+
+if(isset($_POST['batal'])) {
+    $sql = "delete from sensor where status='terPesan' AND nim='".$_SESSION['nim']."'";
+    $sqlRuangan ="update ruangan set statusRuangan='kosong' where nama='".$arrResult[2]."'";
+
+    if ($conn->query($sql) === TRUE && $conn->query($sqlRuangan) === TRUE) {
+        echo "<script>alert(\"berhasil dibatalkan\")</script>";
+        echo '<script>window.location.href = "http://localhost/webMCU/history.php";</script>';
+    } else {
+        echo "<script>alert($conn->error)</script>";
+    }
+
+    unset($_SESSION["kelas"]);
+}
+
+if(isset($_POST['update'])) {
+    echo '<script>window.location.href = "http://localhost/webMCU/update.php";</script>';
 }
 ?>
 
@@ -52,7 +91,7 @@ if($conn->query($sql) === TRUE) {
         <a class="p-2 text-dark" href="http://localhost/webMCU/insert.php">Pilih Kelas</a>
         <a class="p-2 text-dark" href="http://localhost/webMCU/ubah.php">Ubah</a>
     </nav>
-    <a class="btn btn-outline-primary" href="#">Sign up</a>
+    <a class="btn btn-outline-primary" href="http://localhost/webMCU/logout.php">LogOut</a>
 </div>
 
 <div class="limiter">
@@ -62,22 +101,26 @@ if($conn->query($sql) === TRUE) {
                 <table>
                     <thead>
                     <tr class="table100-head">
-                        <th class="column1">Date</th>
-                        <th class="column2">Order ID</th>
-                        <th class="column3">Name</th>
-                        <th class="column4">Price</th>
-                        <th class="column5">Quantity</th>
-                        <th class="column6">Total</th>
+                        <th class="column1">ID</th>
+                        <th class="column2">UID</th>
+                        <th class="column3">Kelas</th>
+                        <th class="column4">Keterangan</th>
+                        <th class="column5">Tanggal</th>
+                        <th class="column6">Jam Mulai</th>
+                        <th class="column7">Jam Selesai</th>
+                        <th class="column8">Setatus</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr>
-                        <td class="column1">2017-09-29 01:22</td>
-                        <td class="column2">200398</td>
-                        <td class="column3">iPhone X 64Gb Grey</td>
-                        <td class="column4">$999.00</td>
-                        <td class="column5">1</td>
-                        <td class="column6">$999.00</td>
+                        <th class="column1"><?php echo $arrResult[0]?></th>
+                        <th class="column2"><?php echo $arrResult[1]?></th>
+                        <th class="column3"><?php echo $arrResult[2]?></th>
+                        <th class="column4"><?php echo $arrResult[3]?></th>
+                        <th class="column5"><?php echo $arrResult[4]?></th>
+                        <th class="column6"><?php echo $arrResult[5]?></th>
+                        <th class="column7"><?php echo $arrResult[6]?></th>
+                        <th class="column8"><?php echo $arrResult[7]?></th>
                     </tr>
                     </tbody>
                 </table>
@@ -86,8 +129,11 @@ if($conn->query($sql) === TRUE) {
                 <div class="container">
                     <div class="row">
                         <div class="col text-center mb-2">
-                            <button type="submit" class="btn btn-success m-2" name="selesai">Selesai</button>
-                            <button type="submit" class="btn btn-danger m-2" name="batal">Batal</button>
+                            <form method="post">
+                                <button type="submit" class="btn btn-success m-2" name="selesai" >Selesai</button>
+                                <button type="submit" class="btn btn-primary m-2" name="update">update</button>
+                                <button type="submit" class="btn btn-danger m-2" name="batal">Batal</button>
+                            </form>
                         </div>
                     </div>
                 </div>

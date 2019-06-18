@@ -1,16 +1,15 @@
 <?php
 require ('dbConn.php');
 
-$sql = "select * from sensor";
-$result = $conn->query($sql);
+session_start();
 
-if($result->num_rows > 0) {
-    while($row = $result->fetch_assoc()) {
-        echo "UID: ".$row['nim']."<br>";
-    }
+if(!isset($_SESSION['nim'])) {
+    echo '<script>window.location.href = "http://localhost/webMCU";</script>';
 }
-?>
 
+$sql = "select * from sensor where nim='".$_SESSION['nim']."'";
+$result = $conn->query($sql);
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -44,7 +43,7 @@ if($result->num_rows > 0) {
         <a class="p-2 text-dark" href="http://localhost/webMCU/insert.php">Pilih Kelas</a>
         <a class="p-2 text-dark" href="http://localhost/webMCU/ubah.php">Ubah</a>
     </nav>
-    <a class="btn btn-outline-primary" href="#">Sign up</a>
+    <a class="btn btn-outline-primary" href="http://localhost/webMCU/logout.php">LogOut</a>
 </div>
 
 <div class="limiter">
@@ -54,128 +53,33 @@ if($result->num_rows > 0) {
                 <table>
                     <thead>
                     <tr class="table100-head">
-                        <th class="column1">Date</th>
-                        <th class="column2">Order ID</th>
-                        <th class="column3">Name</th>
-                        <th class="column4">Price</th>
-                        <th class="column5">Quantity</th>
-                        <th class="column6">Total</th>
+                        <th class="column1">ID</th>
+                        <th class="column2">UID</th>
+                        <th class="column3">Kelas</th>
+                        <th class="column4">Keterangan</th>
+                        <th class="column5">Tanggal</th>
+                        <th class="column6">Jam Mulai</th>
+                        <th class="column7">Jam Selesai</th>
+                        <th class="column8">Setatus</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr>
-                        <td class="column1">2017-09-29 01:22</td>
-                        <td class="column2">200398</td>
-                        <td class="column3">iPhone X 64Gb Grey</td>
-                        <td class="column4">$999.00</td>
-                        <td class="column5">1</td>
-                        <td class="column6">$999.00</td>
-                    </tr>
-                    <tr>
-                        <td class="column1">2017-09-28 05:57</td>
-                        <td class="column2">200397</td>
-                        <td class="column3">Samsung S8 Black</td>
-                        <td class="column4">$756.00</td>
-                        <td class="column5">1</td>
-                        <td class="column6">$756.00</td>
-                    </tr>
-                    <tr>
-                        <td class="column1">2017-09-26 05:57</td>
-                        <td class="column2">200396</td>
-                        <td class="column3">Game Console Controller</td>
-                        <td class="column4">$22.00</td>
-                        <td class="column5">2</td>
-                        <td class="column6">$44.00</td>
-                    </tr>
-                    <tr>
-                        <td class="column1">2017-09-25 23:06</td>
-                        <td class="column2">200392</td>
-                        <td class="column3">USB 3.0 Cable</td>
-                        <td class="column4">$10.00</td>
-                        <td class="column5">3</td>
-                        <td class="column6">$30.00</td>
-                    </tr>
-                    <tr>
-                        <td class="column1">2017-09-24 05:57</td>
-                        <td class="column2">200391</td>
-                        <td class="column3">Smartwatch 4.0 LTE Wifi</td>
-                        <td class="column4">$199.00</td>
-                        <td class="column5">6</td>
-                        <td class="column6">$1494.00</td>
-                    </tr>
-                    <tr>
-                        <td class="column1">2017-09-23 05:57</td>
-                        <td class="column2">200390</td>
-                        <td class="column3">Camera C430W 4k</td>
-                        <td class="column4">$699.00</td>
-                        <td class="column5">1</td>
-                        <td class="column6">$699.00</td>
-                    </tr>
-                    <tr>
-                        <td class="column1">2017-09-22 05:57</td>
-                        <td class="column2">200389</td>
-                        <td class="column3">Macbook Pro Retina 2017</td>
-                        <td class="column4">$2199.00</td>
-                        <td class="column5">1</td>
-                        <td class="column6">$2199.00</td>
-                    </tr>
-                    <tr>
-                        <td class="column1">2017-09-21 05:57</td>
-                        <td class="column2">200388</td>
-                        <td class="column3">Game Console Controller</td>
-                        <td class="column4">$999.00</td>
-                        <td class="column5">1</td>
-                        <td class="column6">$999.00</td>
-                    </tr>
-                    <tr>
-                        <td class="column1">2017-09-19 05:57</td>
-                        <td class="column2">200387</td>
-                        <td class="column3">iPhone X 64Gb Grey</td>
-                        <td class="column4">$999.00</td>
-                        <td class="column5">1</td>
-                        <td class="column6">$999.00</td>
-                    </tr>
-                    <tr>
-                        <td class="column1">2017-09-18 05:57</td>
-                        <td class="column2">200386</td>
-                        <td class="column3">iPhone X 64Gb Grey</td>
-                        <td class="column4">$999.00</td>
-                        <td class="column5">1</td>
-                        <td class="column6">$999.00</td>
-                    </tr>
-                    <tr>
-                        <td class="column1">2017-09-22 05:57</td>
-                        <td class="column2">200389</td>
-                        <td class="column3">Macbook Pro Retina 2017</td>
-                        <td class="column4">$2199.00</td>
-                        <td class="column5">1</td>
-                        <td class="column6">$2199.00</td>
-                    </tr>
-                    <tr>
-                        <td class="column1">2017-09-21 05:57</td>
-                        <td class="column2">200388</td>
-                        <td class="column3">Game Console Controller</td>
-                        <td class="column4">$999.00</td>
-                        <td class="column5">1</td>
-                        <td class="column6">$999.00</td>
-                    </tr>
-                    <tr>
-                        <td class="column1">2017-09-19 05:57</td>
-                        <td class="column2">200387</td>
-                        <td class="column3">iPhone X 64Gb Grey</td>
-                        <td class="column4">$999.00</td>
-                        <td class="column5">1</td>
-                        <td class="column6">$999.00</td>
-                    </tr>
-                    <tr>
-                        <td class="column1">2017-09-18 05:57</td>
-                        <td class="column2">200386</td>
-                        <td class="column3">iPhone X 64Gb Grey</td>
-                        <td class="column4">$999.00</td>
-                        <td class="column5">1</td>
-                        <td class="column6">$999.00</td>
-                    </tr>
-
+                    <?php
+                    if($result->num_rows > 0) {
+                        while($row = $result->fetch_assoc()) {
+                            echo "<tr>";
+                                echo "<td class='column1'>".$row['ID']."</td>";
+                                echo "<td class='column2'>".$row['nim']."</td>";
+                                echo "<td class='column3'>".$row['kelas']."</td>";
+                                echo "<td class='column4'>".$row['keterangan']."</td>";
+                                echo "<td class='column5'>".$row['tanggal']."</td>";
+                                echo "<td class='column6'>".$row['jamMulai']."</td>";
+                                echo "<td class='column7'>".$row['jamSelesai']."</td>";
+                                echo "<td class='column8'>".$row['status']."</td>";
+                            echo "</tr>";
+                        }
+                    }
+                    ?>
                     </tbody>
                 </table>
             </div>

@@ -1,3 +1,35 @@
+<?php
+require ('dbConn.php');
+
+session_start();
+
+if(isset($_SESSION['nim'])) {
+    echo "<script>alert(\"Anda sudah LogIn\")</script>";
+    echo '<script>window.location.href = "http://localhost/webMCU/history.php";</script>';
+}
+
+if (isset($_POST["login"])){
+    $nim = $_POST['nim'];
+    $paswd = $_POST['password'];
+
+    $sql = 'select nim from sensor where nim="'.$nim.'"';
+    $result = $conn->query($sql);
+
+    if($result->num_rows > 0) {
+        while($row = $result->fetch_assoc()) {
+            echo "UID: ".$row['nim']."<br>";
+        }
+    }
+
+    if($result->num_rows > 0) {
+        $_SESSION["nim"]=$nim;
+        $_SESSION["password"]=$paswd;
+        echo '<script>window.location.href = "http://localhost/webMCU/history.php";</script>';
+    } else{
+        echo '<script>alert("nim tidak diketahui");</script>';
+    }
+}
+?>
 <html>
 <head>
     <title>Login V3</title>
@@ -34,7 +66,7 @@
         <a class="p-2 text-dark" href="http://localhost/webMCU/insert.php">Pilih Kelas</a>
         <a class="p-2 text-dark" href="http://localhost/webMCU/ubah.php">Ubah</a>
     </nav>
-    <a class="btn btn-outline-primary" href="#">Sign up</a>
+    <a class="btn btn-outline-primary d-none" href="#"></a>
 </div>
 
 <div class="limiter">
@@ -101,31 +133,3 @@
 <!--===============================================================================================-->
 </body>
 </html>
-
-<?php
-require ('dbConn.php');
-
-//session_start();
-
-if (isset($_POST["login"])){
-    $nim = $_POST['nim'];
-    $paswd = $_POST['password'];
-
-    $sql = 'select nim from sensor where nim="'.$nim.'"';
-    $result = $conn->query($sql);
-
-    if($result->num_rows > 0) {
-        while($row = $result->fetch_assoc()) {
-            echo "UID: ".$row['nim']."<br>";
-        }
-    }
-
-    if($result->num_rows > 0) {
-        $_SESSION["nim"]=$nim;
-        $_SESSION["password"]=$paswd;
-        echo '<script>window.location.href = "http://localhost/webMCU/daftar.php";</script>';
-    } else{
-        echo '<script>alert("nim tidak diketahui");</script>';
-    }
-}
-?>
