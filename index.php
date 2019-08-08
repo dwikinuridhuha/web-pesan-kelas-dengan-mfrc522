@@ -21,7 +21,7 @@ if (isset($_POST["login"])) {
         $_SESSION["nim"] = $nim;
         $_SESSION["password"] = $paswd;
 //        echo '<script>window.location.href = "http://pkl-fk.000webhostapp.com/history.php";</script>';
-            echo '<script>window.location.href = "http://localhost/webMCU/histpry.php";</script>';
+            echo '<script>window.location.href = "http://localhost/webMCU/history.php";</script>';
     } else {
         echo '<script>alert("nim tidak diketahui");</script>';
     }
