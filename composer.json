@@ -1,0 +1,6 @@
+{
+    "require": {
+        "araditama/siam-ub-auth": "^1.1",
+        "fabpot/goutte": "^3.2"
+    }
+}

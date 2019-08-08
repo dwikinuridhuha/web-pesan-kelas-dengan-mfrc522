@@ -1,68 +1,58 @@
 <?php
-require ('dbConn.php');
+require('dbConn.php');
 
 session_start();
 
-if(!isset($_SESSION['nim'])) {
-    echo '<script>window.location.href = "http://localhost/webMCU";</script>';
+if (!isset($_SESSION['nim'])) {
+//    echo '<script>window.location.href = "http://pkl-fk.000webhostapp.com/";</script>';
+    echo '<script>window.location.href = "http://localhost/webMCU/";</script>';
 }
 
-$sql = "select * from sensor where status='terPesan' AND nim='".$_SESSION['nim']."'";
+
+$sql = "select * from peminjaman_ruangan where status_pinjam='Booked' AND nim_mahasiswa='" . $_SESSION['nim'] . "'";
 $result = $conn->query($sql);
 
-$arrResult = Array();
-
-while($row = $result->fetch_assoc()) {
-    $arrResult[0] = $row['ID'];
-    $arrResult[1] = $row['nim'];
-    $arrResult[2] = $row['kelas'];
-    $arrResult[3] = $row['keterangan'];
-    $arrResult[4] = $row['jamMulai'];
-    $arrResult[5] = $row['jamSelesai'];
-    $arrResult[6] = $row['tanggal'];
-    $arrResult[7] = $row['status'];
-}
-
-if($result->num_rows <= 0) {
+if ($result->num_rows <= 0) {
     echo "<script>alert(\"tidak ada data\")</script>";
+//    echo '<script>window.location.href = "http://pkl-fk.000webhostapp.com/history.php";</script>';
     echo '<script>window.location.href = "http://localhost/webMCU/history.php";</script>';
 }
 
-if(isset($_POST['selesai'])) {
-    $sql = "update sensor set status='selesai' where status='terPesan' AND nim='".$_SESSION['nim']."'";
-    $sqlRuangan ="update ruangan set statusRuangan='kosong' where nama='".$arrResult[2]."'";
+if (isset($_POST['selesai'])) {
 
-    if ($conn->query($sql) === TRUE && $conn->query($sqlRuangan) === TRUE) {
-        echo "<script>alert(\"berhasil terUpdate\")</script>";
+    $sql = "update peminjaman_ruangan set status_pinjam='Done'
+            where status_pinjam='Booked' AND nim_mahasiswa='" . $_SESSION['nim'] . "' AND id_peminjaman='" . $_POST['idBerow'] . "'";
+
+    if ($conn->query($sql) === TRUE) {
+//        echo '<script>window.location.href = "http://pkl-fk.000webhostapp.com/history.php";</script>';
         echo '<script>window.location.href = "http://localhost/webMCU/history.php";</script>';
     } else {
         echo "<script>alert($conn->error)</script>";
     }
 }
 
-if(isset($_POST['batal'])) {
-    $sql = "delete from sensor where status='terPesan' AND nim='".$_SESSION['nim']."'";
-    $sqlRuangan ="update ruangan set statusRuangan='kosong' where nama='".$arrResult[2]."'";
+if (isset($_POST['batal'])) {
+    $sql = "delete from peminjaman_ruangan
+            where status_pinjam='Booked' AND nim_mahasiswa='" . $_SESSION['nim'] . "' AND id_peminjaman='" . $_POST['idBerow'] . "'";
 
-    if ($conn->query($sql) === TRUE && $conn->query($sqlRuangan) === TRUE) {
-        echo "<script>alert(\"berhasil dibatalkan\")</script>";
+    if ($conn->query($sql) === TRUE) {
+//        echo '<script>window.location.href = "http://pkl-fk.000webhostapp.com/history.php";</script>';
         echo '<script>window.location.href = "http://localhost/webMCU/history.php";</script>';
     } else {
         echo "<script>alert($conn->error)</script>";
     }
-
-    unset($_SESSION["kelas"]);
 }
 
-if(isset($_POST['update'])) {
-    echo '<script>window.location.href = "http://localhost/webMCU/update.php";</script>';
+if (isset($_POST['update'])) {
+//    echo '<script>window.location.href = "http://pkl-fk.000webhostapp.com/update.php?idBerow=' . $_POST['idBerow'] . '";</script>';
+    echo '<script>window.location.href = "http://localhost/webMCU/update.php?idBerow='.$_POST['idBerow'].'";</script>';
 }
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Table V01</title>
+    <title>Update</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!--===============================================================================================-->
@@ -85,13 +75,8 @@ if(isset($_POST['update'])) {
 </head>
 <body>
 <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 bg-white border-bottom box-shadow">
-    <h5 class="my-0 mr-md-auto font-weight-normal">NavBar</h5>
-    <nav class="my-2 my-md-0 mr-md-3">
-        <a class="p-2 text-dark" href="http://localhost/webMCU/history.php">Riwayat</a>
-        <a class="p-2 text-dark" href="http://localhost/webMCU/insert.php">Pilih Kelas</a>
-        <a class="p-2 text-dark" href="http://localhost/webMCU/ubah.php">Ubah</a>
-    </nav>
-    <a class="btn btn-outline-primary" href="http://localhost/webMCU/logout.php">LogOut</a>
+    <h5 class="my-0 mr-md-auto font-weight-normal">Peminjaman Anda </h5>
+    <?php include 'nav.php' ?>
 </div>
 
 <div class="limiter">
@@ -101,46 +86,93 @@ if(isset($_POST['update'])) {
                 <table>
                     <thead>
                     <tr class="table100-head">
-                        <th class="column1">ID</th>
-                        <th class="column2">UID</th>
+                        <th class="column1">No</th>
+                        <th class="column2">NIM</th>
                         <th class="column3">Kelas</th>
                         <th class="column4">Keterangan</th>
-                        <th class="column5">Tanggal</th>
-                        <th class="column6">Jam Mulai</th>
-                        <th class="column7">Jam Selesai</th>
+                        <th class="column5">Jam Mulai</th>
+                        <th class="column6">Jam Selesai</th>
+                        <th class="column7">Tanggal</th>
                         <th class="column8">Setatus</th>
+                        <th class="column9">Edit</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr>
-                        <th class="column1"><?php echo $arrResult[0]?></th>
-                        <th class="column2"><?php echo $arrResult[1]?></th>
-                        <th class="column3"><?php echo $arrResult[2]?></th>
-                        <th class="column4"><?php echo $arrResult[3]?></th>
-                        <th class="column5"><?php echo $arrResult[4]?></th>
-                        <th class="column6"><?php echo $arrResult[5]?></th>
-                        <th class="column7"><?php echo $arrResult[6]?></th>
-                        <th class="column8"><?php echo $arrResult[7]?></th>
-                    </tr>
+                    <?php
+                    if ($result->num_rows > 0) {
+                        $no = 1;
+                        while ($row = $result->fetch_assoc()) {
+                            echo "<tr>";
+                            echo "<td class='column1 ubah'>" . $no . "</td>";
+                            echo "<td class='column2 ubah'>" . $row['nim_mahasiswa'] . "</td>";
+                            echo "<td class='column3 ubah'>" . $row['nama_ruangan'] . "</td>";
+                            echo "<td class='column4 ubah'>" . $row['keterangan'] . "</td>";
+                            echo "<td class='column5 ubah' id='jamMulai'>" . $row['waktu_awal'] . "</td>";
+                            echo "<td class='column6 ubah' id='jamSelesai'>" . $row['waktu_akhir'] . "</td>";
+                            echo "<td class='column7 ubah' id='tanggal'>" . $row['tanggal_pinjam'] . "</td>";
+                            echo "<td class='column8 ubah'>" . $row['status_pinjam'] . "</td>";
+                            echo "<td class='column9 ubah'>
+                                    <form method=\"post\">
+                                    <input type='hidden' value='" . $row["id_peminjaman"] . "' name='idBerow'>
+                                        <button type=\"submit\" 
+                                                id='selesai_" . $row["id_peminjaman"] . "'
+                                                class='btn btn-success m-2 selesai_" . $row["id_peminjaman"] . "'
+                                                name='selesai'
+                                                data-toggle=\"tooltip\" 
+                                                data-placement=\"bottom\" 
+                                                title=\"Selesai\"
+                                                onclick=\"return selesaiBerow('" . $row["waktu_awal"] . "', '" . $row["waktu_akhir"] . "', '" . $row['tanggal_pinjam'] . "')\"
+                                                >
+                                                
+                                                <div class='icon'>
+                                                    <i class=\"fa fa-check\"></i>
+                                                </div>
+                                        </button>
+                                        <button type=\"submit\" 
+                                                id='update_" . $row["id_peminjaman"] . "'
+                                                class='btn btn-primary m-2 update_" . $row["id_peminjaman"] . "'
+                                                name='update'
+                                                data-toggle=\"tooltip\" 
+                                                data-placement=\"bottom\" 
+                                                title=\"Update\"
+                                                onclick=\"return deleteLanUpdateBerow('" . $row["waktu_awal"] . "', '" . $row["waktu_akhir"] . "', '" . $row['tanggal_pinjam'] . "')\"
+                                                >
+                                                
+                                                <div class='icon'>
+                                                    <i class=\"fa fa-refresh\"></i>
+                                                </div>
+                                        </button>
+                                        <button type=\"submit\" 
+                                                id='batal_" . $row["id_peminjaman"] . "' 
+                                                class='btn btn-danger m-2 batal_" . $row["id_peminjaman"] . "' 
+                                                name='batal'
+                                                data-toggle=\"tooltip\" 
+                                                data-placement=\"bottom\" 
+                                                title=\"Batal\"
+                                                onclick=\"return deleteLanUpdateBerow('" . $row["waktu_awal"] . "', '" . $row["waktu_akhir"] . "', '" . $row['tanggal_pinjam'] . "')\"
+                                                >
+                                                
+                                                <div class='icon'>
+                                                    <i class=\"fa fa-trash\"></i>
+                                                </div>
+                                        </button>
+                                    </form>
+                                  </td>";
+                            echo "</tr>";
+                            $no++;
+                        }
+                    } else {
+                        echo "<script>window.location.href = \"http://pkl-fk.000webhostapp.com/insert.php\";</script>";
+                    }
+                    ?>
                     </tbody>
                 </table>
 
-                <hr>
-                <div class="container">
-                    <div class="row">
-                        <div class="col text-center mb-2">
-                            <form method="post">
-                                <button type="submit" class="btn btn-success m-2" name="selesai" >Selesai</button>
-                                <button type="submit" class="btn btn-primary m-2" name="update">update</button>
-                                <button type="submit" class="btn btn-danger m-2" name="batal">Batal</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
 </div>
+
 
 <!--===============================================================================================-->
 <script src="vendor/jquery/jquery-3.2.1.min.js"></script>
@@ -151,6 +183,60 @@ if(isset($_POST['update'])) {
 <script src="vendor/select2/select2.min.js"></script>
 <!--===============================================================================================-->
 <script src="js/main.js"></script>
+<!--===============================================================================================-->
+<script>
+    var hariIni = new Date();
 
+    var dd = String(hariIni.getDate()).padStart(2, '0');
+    var mm = String(hariIni.getMonth() + 1).padStart(2, '0');
+    var yyyy = hariIni.getFullYear();
+    var tanggalSekarang = yyyy + '-' + mm + '-' + dd;
+
+    var jam = String(hariIni.getHours()).padStart(2, '0');
+    var menit = String(hariIni.getMinutes()).padStart(2, '0');
+    var detik = String(hariIni.getSeconds());
+    var jamSekarang = jam + ":" + menit + ":" + detik;
+
+    function selesaiBerow(waktuAwal, waktuAkhir, tanggal) {
+        if (tanggalSekarang > tanggal || tanggalSekarang == tanggal) {
+            if(tanggalSekarang === tanggal) {
+                if (jamSekarang > waktuAwal) {
+                    alert('bisa');
+                    return true;
+                } else {
+                    alert('tidak');
+                    return false;
+                }
+            } else {
+                alert('bisa');
+                return true;
+            }
+        } else {
+            alert('tidak');
+            return false;
+        }
+    }
+
+    function deleteLanUpdateBerow(waktuAwal, waktuAkhir, tanggal) {
+        if (tanggalSekarang < tanggal || tanggalSekarang === tanggal) {
+            if (tanggalSekarang === tanggal) {
+                if (jamSekarang < waktuAwal) {
+                    alert('bisa');
+                    return true;
+                } else {
+                    alert('tidak');
+                    return false;
+                }
+            } else {
+                alert('bisa');
+                return true;
+            }
+        } else {
+            alert('tidak');
+            return false;
+        }
+    }
+
+</script>
 </body>
 </html>

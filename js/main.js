@@ -1,7 +1,43 @@
+function myFunction() {
+    var x = document.getElementById('myTopNav');
+    if(x.className === 'topnav') {
+        x.className += " responsive";
+    } else {
+        x.className = "topnav";
+    }
+}
+
+function validasiBrow() {
+    var hariIni = new Date();
+
+    var dd = String(hariIni.getDate()).padStart(2, '0');
+    var mm = String(hariIni.getMonth() + 1).padStart(2, '0');
+    var yyyy = hariIni.getFullYear();
+    var tanggalSekarang = yyyy + '-' + mm + '-' + dd;
+
+    var jam = String(hariIni.getHours()).padStart(2, '0');
+    var menit = String(hariIni.getMinutes()).padStart(2, '0');
+    var detik = String(hariIni.getSeconds());
+    var jamSekarang = jam + ":" + menit + ":" + detik;
+
+    var jamMulai = document.getElementById('jamMulai').value;
+    var jamSelesai = document.getElementById('jamSelesai').value;
+    var tanggal = document.getElementById('tanggal').value;
+
+    if((jamMulai < jamSelesai) && (tanggalSekarang < tanggal)) {
+        alert('berhasil');
+        return true;
+    } else if((tanggal === tanggalSekarang) && (jamSekarang < jamMulai) && (jamMulai < jamSelesai)) {
+        alert('berhasil');
+        return true;
+    } else {
+        alert('jam atau tanggal ada yang salah');
+        return false;
+    }
+}
 
 (function ($) {
     "use strict";
-
 
     /*==================================================================
     [ Focus input ]*/
@@ -14,7 +50,7 @@
                 $(this).removeClass('has-val');
             }
         })    
-    })
+    });
   
   
     /*==================================================================
@@ -40,19 +76,6 @@
            hideValidate(this);
         });
     });
-
-    function validate (input) {
-        if($(input).attr('type') == 'email' || $(input).attr('name') == 'email') {
-            if($(input).val().trim().match(/^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{1,5}|[0-9]{1,3})(\]?)$/) == null) {
-                return false;
-            }
-        }
-        else {
-            if($(input).val().trim() == ''){
-                return false;
-            }
-        }
-    }
 
     function showValidate(input) {
         var thisAlert = $(input).parent();
@@ -80,8 +103,6 @@
             $(this).removeClass('active');
             showPass = 0;
         }
-        
     });
-
 
 })(jQuery);
